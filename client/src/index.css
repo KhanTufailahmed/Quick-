@@ -21,7 +21,7 @@
 }
 
 @theme {
-  --color-primary: #5044E5;
+  --color-primary: #5044e5;
 }
 
 @theme inline {
@@ -139,4 +139,12 @@
     @apply bg-background text-foreground;
   }
 }
- 
+
+.reset-tw,
+.reset-tw * {
+  all: revert !important;
+}
+
+.cl-drawerRoot{
+  z-index: 10;
+}
