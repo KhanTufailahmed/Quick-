@@ -16,6 +16,9 @@ dist-ssr
 .vscode/*
 !.vscode/extensions.json
 .idea
+.env
+/server/generated/prisma
+
 .DS_Store
 *.suo
 *.ntvs*
