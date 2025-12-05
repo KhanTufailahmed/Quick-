@@ -18,6 +18,7 @@ dist-ssr
 .idea
 .env
 /server/generated/prisma
+/server/prisma/migrations
 
 .DS_Store
 *.suo

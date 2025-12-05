@@ -12,3 +12,15 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model Creations {
+  id        Int      @id @unique
+  userId    String
+  prompt    String
+  content   String
+  type      String
+  publish   Boolean  @default(false)
+  likes     String[] @default([])
+  cratedAt  DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
