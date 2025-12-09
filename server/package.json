@@ -14,13 +14,14 @@
   "dependencies": {
     "@clerk/express": "^1.7.55",
     "@neondatabase/serverless": "^1.0.2",
-    "@prisma/client": "^7.0.1",
+    "@prisma/client": "^5.19.1",
     "axios": "^1.13.2",
     "cloudinary": "^2.8.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.2.0",
     "multer": "^2.0.2",
-    "prisma": "^7.0.1"
+    "openai": "^6.10.0",
+    "prisma": "^5.19.1"
   }
 }
