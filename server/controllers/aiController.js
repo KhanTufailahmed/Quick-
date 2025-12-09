@@ -5,6 +5,9 @@ import { clerkClient } from "@clerk/express";
 import axios from "axios";
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
+// import pdf from "pdf-parse/lib/pdf-parse.js";
+// import pdf from "pdf-parse";
+import { PDFParse } from "pdf-parse";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
@@ -366,29 +369,45 @@ export const resumeReview = async (req, res) => {
       return res.status(400).json({
         message: "Resume size should be less than 5MB",
         success: false,
-      })
+      });
     }
-    const dataBuffer=fs.readFileSync(resume.path);
-    const imageUrl = cloudinary.url(public_id, {
-      transformation: [
+    const dataBuffer = fs.readFileSync(resume.path);
+    const pdfData = await PDFParse(dataBuffer);
+
+    const prompt = `Review the following resume and provide constructive feedback on its strengths, weaknesses, and areas for improvement. Resume Content:\n\n${pdfData.text}`;
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: [
         {
-          effect: `gen_remove:${object}`,
+          role: "user",
+          parts: [{ text: prompt }],
         },
       ],
-      resource_type: "image",
+      generationConfig: {
+        temperature: 0.7,
+        maxOutputTokens: 1000,
+      },
     });
+    const content = response.text;
+
+    if (!content) {
+      return res.status(500).json({
+        message: "AI did not return any content",
+        success: false,
+      });
+    }
 
     await prisma.creations.create({
       data: {
         userId,
-        prompt: `Remove ${object} from image`,
-        content: imageUrl,
-        type: "image",
+        prompt: "Review the uploaded resume",
+        content: content,
+        type: "resume-review",
       },
     });
 
     return res.status(200).json({
-      message: imageUrl,
+      message: content,
       success: true,
     });
   } catch (error) {
