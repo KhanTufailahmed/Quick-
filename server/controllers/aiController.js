@@ -1,13 +1,9 @@
 import prisma from "../config/db.js";
 import { GoogleGenAI } from "@google/genai";
 
-import { createRequire } from "module";
-const require = createRequire(import.meta.url);
 import { clerkClient } from "@clerk/express";
 import axios from "axios";
 import { v2 as cloudinary } from "cloudinary";
-import fs from "fs";
-import { PDFParse } from "pdf-parse";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
@@ -302,6 +298,11 @@ export const removeImageObject = async (req, res) => {
   }
 };
 
+
+
+
+
+
 export const resumeReview = async (req, res) => {
   try {
     const { userId } = req.auth();
@@ -310,7 +311,7 @@ export const resumeReview = async (req, res) => {
 
     if (plan !== "premium") {
       return res.status(400).json({
-        message: "This Feature is only available for premium subscriptions",
+        message: "This feature is only available for premium subscriptions",
         success: false,
       });
     }
@@ -329,23 +330,30 @@ export const resumeReview = async (req, res) => {
       });
     }
 
-    const parser = new PDFParse({ data: resume.buffer });
+    // Convert file to Base64 for Gemini
+    const base64File = resume.buffer.toString("base64");
 
-    const pdfResult = await parser.getText();
-
-    const prompt = `Review the following resume and provide constructive feedback on its strengths, weaknesses, and areas for improvement. Resume Content:\n\n${pdfResult.text}`;
+    const prompt =
+      "Review this resume and provide strengths, weaknesses, and improvement suggestions.";
 
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: [
         {
-          role: "user",
-          parts: [{ text: prompt }],
+          parts: [
+            {
+              inlineData: {
+                data: base64File,
+                mimeType: resume.mimetype,
+              },
+            },
+            { text: prompt },
+          ],
         },
       ],
       generationConfig: {
         temperature: 0.7,
-        maxOutputTokens: 1000,
+        maxOutputTokens: 1200,
       },
     });
 
@@ -354,7 +362,7 @@ export const resumeReview = async (req, res) => {
     await prisma.creations.create({
       data: {
         userId,
-        prompt: "Review the uploaded resume",
+        prompt: "Resume Review",
         content,
         type: "resume-review",
       },
@@ -372,8 +380,4 @@ export const resumeReview = async (req, res) => {
     });
   }
 };
-
-
-
-
 
