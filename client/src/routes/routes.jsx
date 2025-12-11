@@ -8,7 +8,7 @@ import RemoveObject from "../pages/RemoveObject";
 import Community from "../pages/Community";
 import ReviewResume from "../pages/ReviewResume";
 import Home from "../pages/Home";
-import DashBoard from "../pages/Dashboard";
+import DashBoard from "../pages/DashBoard";
 const AppRouter = createBrowserRouter([
   {
     path: "/",
