@@ -3,7 +3,6 @@ import Markdown from "react-markdown";
 
 const CreationItem = ({ item }) => {
   const [expanded, setExpanded] = useState(false);
-  console.log(item);
   return (
     <div
       className="p-4 max-w-5xl text-sm bg-white border border-gray-200 rounded-lg cursor-pointer"

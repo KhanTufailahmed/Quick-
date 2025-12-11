@@ -7,17 +7,18 @@ import React, { use, useEffect, useState } from "react";
 const DashBoard = () => {
   const [creations, setCreations] = useState([]);
   const { getToken } = useAuth();
+  const [loading, setLoading] = useState(false);
   const getDeshboardData = async () => {
-    // setCreations(dummyCreationData);
     try {
-      const res = await axios.get("api/user/get-user-creations",{
-        headers:{
-          Authorization: `Bearer ${await getToken()}`
-        }
+      setLoading(true);
+      const res = await axios.get("api/user/get-user-creations", {
+        headers: {
+          Authorization: `Bearer ${await getToken()}`,
+        },
       });
-      if(res.data.success){
+      if (res.data.success) {
         setCreations(res.data.data);
-      }else{
+      } else {
         toast.error(res.data.message);
       }
     } catch (error) {
@@ -26,6 +27,8 @@ const DashBoard = () => {
       } else {
         toast.error(error.message);
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -61,14 +64,19 @@ const DashBoard = () => {
           </div>
         </div>
       </div>
+      {loading ? (
+        <div className="w-full h-screen flex items-center justify-center">
+          <span className="w-10 h-10 my-1 rounded-full border-3 border-primary border-t-transparent animate-spin"></span>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          <p className="mt-6 mb-4">Recent Creations</p>
 
-      <div className="space-y-3">
-        <p className="mt-6 mb-4">Recent Creations</p>
-        {/* <CreationItem /> */}
-        {creations.map((item, index) => (
-          <CreationItem key={index} item={item}></CreationItem>
-        ))}
-      </div>
+          {creations.map((item, index) => (
+            <CreationItem key={index} item={item}></CreationItem>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

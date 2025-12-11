@@ -22,7 +22,6 @@ const Community = () => {
       });
       setCreations(res.data.data);
 
-      console.log(res);
       if (res.data.success) {
         setCreations(res.data.data);
       } else {
@@ -50,7 +49,6 @@ const Community = () => {
           },
         }
       );
-      console.log(res);
       if (res.data.success) {
         toast.success(res.data.data);
         await fetchCreations();
@@ -58,7 +56,6 @@ const Community = () => {
         toast.error(res.data.data);
       }
     } catch (error) {
-      console.log(error);
       if (error.response?.data?.data) {
         toast.error(error.response.data.data);
       } else {
@@ -72,10 +69,7 @@ const Community = () => {
       fetchCreations();
     }
   }, [user]);
-  useEffect(() => {
-    console.log(creations);
-    
-  },[creations])
+  
   return (
     <div className="flex-1 h-full flex flex-col gap-4 p-6">
       <h1 className="text-xl font-semibold"> Creations</h1>

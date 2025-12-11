@@ -206,7 +206,6 @@ export const generateImage = async (req, res) => {
 export const removeImageBackground = async (req, res) => {
   try {
     const { userId } = req.auth();
-    console.log("File received:", req.file);
     const  image  = req.file;
 
     const plan = req.plan;

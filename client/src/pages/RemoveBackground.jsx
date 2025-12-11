@@ -26,7 +26,6 @@ const RemoveBackground = () => {
           },
         }
       );
-      console.log(res);
       if (res.data.success) {
         setContent(res.data.message);
       } else {
