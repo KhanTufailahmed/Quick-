@@ -51,7 +51,11 @@ const WriteArticle = () => {
         toast.error(res.data.message);
       }
     } catch (error) {
-      toast.error(error.message);
+      if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error(error.message);
+      }
     } finally {
       setLoading(false);
     }

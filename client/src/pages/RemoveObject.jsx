@@ -1,6 +1,8 @@
 import { Eraser, Scissors, Sparkles, SquareScissors } from 'lucide-react';
 import React, { useState } from 'react'
 
+axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
+
 const RemoveObject = () => {
   const [input, setInput] = useState("");
   const [object, setObject] = useState("");

@@ -259,7 +259,8 @@ export const generateImage = async (req, res) => {
 export const removeImageBackground = async (req, res) => {
   try {
     const { userId } = req.auth();
-    const { image } = req.file;
+    console.log("File received:", req.file);
+    const  image  = req.file;
 
     const plan = req.plan;
 
@@ -270,14 +271,22 @@ export const removeImageBackground = async (req, res) => {
       });
     }
 
-    const { secure_url } = await cloudinary.uploader.upload(image.path, {
-      transformation: [
-        {
-          effect: "background_removal",
-          background_removal: "remove_the_background",
-        },
-      ],
-    });
+      const base64Image = `data:${
+        req.file.mimetype
+      };base64,${req.file.buffer.toString("base64")}`;
+
+      // Upload to Cloudinary with background removal
+      const { secure_url } = await cloudinary.uploader.upload(base64Image, {
+        effect: "background_removal",
+      });
+    // const { secure_url } = await cloudinary.uploader.upload(image.path, {
+    //   transformation: [
+    //     {
+    //       effect: "background_removal",
+    //       background_removal: "remove_the_background",
+    //     },
+    //   ],
+    // });
 
     await prisma.creations.create({
       data: {
