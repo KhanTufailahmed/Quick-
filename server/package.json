@@ -6,7 +6,11 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "postinstall": "prisma generate"
+  },
+  "prisma": {
+    "schema": "./prisma/schema.prisma"
   },
   "keywords": [],
   "author": "",
