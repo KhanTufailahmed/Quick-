@@ -1,5 +1,4 @@
 import { createBrowserRouter } from "react-router-dom";
-import Home from "../pages/home";
 import Layout from "../pages/Layout";
 import WriteArticle from "../pages/WriteArticle";
 import BlogTitle from "../pages/BlogTitle";
@@ -9,6 +8,7 @@ import RemoveObject from "../pages/RemoveObject";
 import Dashboard from "../pages/Dashboard";
 import Community from "../pages/Community";
 import ReviewResume from "../pages/ReviewResume";
+import Home from "../pages/Home";
 const AppRouter = createBrowserRouter([
   {
     path: "/",
