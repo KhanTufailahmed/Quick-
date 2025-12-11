@@ -5,10 +5,10 @@ import BlogTitle from "../pages/BlogTitle";
 import GenerateImages from "../pages/GenerateImages";
 import RemoveBackground from "../pages/RemoveBackground";
 import RemoveObject from "../pages/RemoveObject";
-import Dashboard from "../pages/Dashboard";
 import Community from "../pages/Community";
 import ReviewResume from "../pages/ReviewResume";
 import Home from "../pages/Home";
+import DashBoard from "../pages/Dashboard";
 const AppRouter = createBrowserRouter([
   {
     path: "/",
@@ -20,7 +20,7 @@ const AppRouter = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Dashboard></Dashboard>,
+        element: <DashBoard></DashBoard>
       },
       {
         path: "write-article",
