@@ -1,12 +1,32 @@
 import { dummyCreationData } from "@/assets/assets";
 import CreationItem from "@/components/Dashboard/CreationItem";
-import { Protect } from "@clerk/clerk-react";
+import { Protect, useAuth } from "@clerk/clerk-react";
+import axios from "axios";
 import { Gem, Sparkles } from "lucide-react";
 import React, { use, useEffect, useState } from "react";
 const DashBoard = () => {
   const [creations, setCreations] = useState([]);
+  const { getToken } = useAuth();
   const getDeshboardData = async () => {
-    setCreations(dummyCreationData);
+    // setCreations(dummyCreationData);
+    try {
+      const res = await axios.get("api/user/get-user-creations",{
+        headers:{
+          Authorization: `Bearer ${await getToken()}`
+        }
+      });
+      if(res.data.success){
+        setCreations(res.data.data);
+      }else{
+        toast.error(res.data.message);
+      }
+    } catch (error) {
+      if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error(error.message);
+      }
+    }
   };
 
   useEffect(() => {
@@ -45,11 +65,9 @@ const DashBoard = () => {
       <div className="space-y-3">
         <p className="mt-6 mb-4">Recent Creations</p>
         {/* <CreationItem /> */}
-        {
-          creations.map((item,index)=>(
-            <CreationItem key={index} item={item}></CreationItem>
-          ))
-        }
+        {creations.map((item, index) => (
+          <CreationItem key={index} item={item}></CreationItem>
+        ))}
       </div>
     </div>
   );

@@ -73,7 +73,7 @@ const ReviewResume = () => {
           ) : (
             <FileText className="w-5"></FileText>
           )}
-          Remove background
+          Review Resume
         </button>
       </form>
       <div className="w-full max-w-lg p-4 bg-white rounded-lg flex flex-col border border-gray-200 min-h-96 max-h-[600px]">

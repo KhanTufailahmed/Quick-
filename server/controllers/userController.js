@@ -12,9 +12,9 @@ export const getUserCreations = async (req, res) => {
         cratedAt: "desc",
       },
     });
-    return res.status(200).json({ data: creations, succcess: true });
+    return res.status(200).json({ data: creations, success: true });
   } catch (error) {
-    return res.status(400).json({ message: error.message, succcess: false });
+    return res.status(400).json({ message: error.message, success: false });
   }
 };
 
@@ -28,11 +28,13 @@ export const getPublishedCreations = async (req, res) => {
         cratedAt: "desc",
       },
     });
-    return res.status(200).json({ data: creations, succcess: true });
+    return res.status(200).json({ data: creations, success: true });
   } catch (error) {
-    return res.status(400).json({ message: error.message, succcess: false });
+    return res.status(400).json({ message: error.message, success: false });
   }
 };
+
+
 
 export const toogleLikeCreation = async (req, res) => {
   try {
@@ -40,44 +42,39 @@ export const toogleLikeCreation = async (req, res) => {
     const { id } = req.body;
 
     const creation = await prisma.creations.findUnique({
-      where: {
-        id: id,
-      },
+      where: { id },
     });
 
-    if (!creation)
-      return res
-        .status(400)
-        .json({ message: "Creation not found", succcess: false });
+    if (!creation) {
+      return res.status(400).json({
+        message: "Creation not found",
+        success: false,
+      });
+    }
 
-    const currentLikes = creation.likes;
-
+    const currentLikes = creation.likes || [];
     const userIdStr = userId.toString();
 
     let updatedLikes;
     let message;
 
     if (currentLikes.includes(userIdStr)) {
-      updatedLikes = currentLikes.filter((user) => user !== userIdStr);
-      message: "Creation unliked";
+      updatedLikes = currentLikes.filter((u) => u !== userIdStr);
+      message = "Creation unliked";
     } else {
       updatedLikes = [...currentLikes, userIdStr];
-      message: "Creation liked";
+      message = "Creation liked";
     }
 
-    const formattedLikes = `{${updatedLikes.join(",")}}`;
-
-    const updatedCreation = await prisma.creations.update({
-      where: {
-        id: id,
-      },
+    await prisma.creations.update({
+      where: { id },
       data: {
-        likes: formattedLikes,
+        likes: { set: updatedLikes },
       },
     });
 
-    res.status(200).json({ data: message, succcess: true });
+    return res.status(200).json({ data: message, success: true });
   } catch (error) {
-    return res.status(400).json({ message: error.message, succcess: false });
+    return res.status(400).json({ message: error.message, success: false });
   }
 };
