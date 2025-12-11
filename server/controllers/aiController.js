@@ -1,12 +1,12 @@
 import prisma from "../config/db.js";
 import { GoogleGenAI } from "@google/genai";
 
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
 import { clerkClient } from "@clerk/express";
 import axios from "axios";
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
-// import pdf from "pdf-parse/lib/pdf-parse.js";
-// import pdf from "pdf-parse";
 import { PDFParse } from "pdf-parse";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
@@ -26,33 +26,7 @@ export const generateArticle = async (req, res) => {
       });
     }
 
-    // const response = await AI.models.generateContent({
-    //   model: "gemini-2.5-flash",
-    //   messages: [
-    //     {
-    //       role: "user",
-    //       contents: prompt,
-    //     },
-    //   ],
-    //   temperature: 0.7,
-    //   max_tokens: length,
-    // });
-
-    // const content = response.text;
-    // const result = await AI.models.generateContent({
-    //   model: "gemini-1.5-flash",
-    //   contents: [
-    //     {
-    //       role: "user",
-    //       parts: [{ text: prompt }],
-    //     },
-    //   ],
-    //   generationConfig: {
-    //     temperature: 0.7,
-    //     maxOutputTokens: length,
-    //   },
-    // });
-
+    
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: [
@@ -118,33 +92,6 @@ export const generateBlogTitle = async (req, res) => {
         success: false,
       });
     }
-
-    // const response = await AI.models.generateContent({
-    //   model: "gemini-2.5-flash",
-    //   messages: [
-    //     {
-    //       role: "user",
-    //       contents: prompt,
-    //     },
-    //   ],
-    //   temperature: 0.7,
-    //   max_tokens: length,
-    // });
-
-    // const content = response.text;
-    // const result = await AI.models.generateContent({
-    //   model: "gemini-1.5-flash",
-    //   contents: [
-    //     {
-    //       role: "user",
-    //       parts: [{ text: prompt }],
-    //     },
-    //   ],
-    //   generationConfig: {
-    //     temperature: 0.7,
-    //     maxOutputTokens: length,
-    //   },
-    // });
 
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
@@ -275,18 +222,10 @@ export const removeImageBackground = async (req, res) => {
         req.file.mimetype
       };base64,${req.file.buffer.toString("base64")}`;
 
-      // Upload to Cloudinary with background removal
       const { secure_url } = await cloudinary.uploader.upload(base64Image, {
         effect: "background_removal",
       });
-    // const { secure_url } = await cloudinary.uploader.upload(image.path, {
-    //   transformation: [
-    //     {
-    //       effect: "background_removal",
-    //       background_removal: "remove_the_background",
-    //     },
-    //   ],
-    // });
+    
 
     await prisma.creations.create({
       data: {
@@ -315,7 +254,7 @@ export const removeImageObject = async (req, res) => {
   try {
     const { userId } = req.auth();
     const { object } = req.body;
-    const { image } = req.file;
+    const  image  = req.file;
 
     const plan = req.plan;
 
@@ -326,7 +265,11 @@ export const removeImageObject = async (req, res) => {
       });
     }
 
-    const { public_id } = await cloudinary.uploader.upload(image.path);
+    
+      const base64Image = `data:${
+        req.file.mimetype
+      };base64,${req.file.buffer.toString("base64")}`;
+    const { public_id } = await cloudinary.uploader.upload(base64Image);
 
     const imageUrl = cloudinary.url(public_id, {
       transformation: [
@@ -364,12 +307,18 @@ export const resumeReview = async (req, res) => {
   try {
     const { userId } = req.auth();
     const resume = req.file;
-
     const plan = req.plan;
 
     if (plan !== "premium") {
       return res.status(400).json({
         message: "This Feature is only available for premium subscriptions",
+        success: false,
+      });
+    }
+
+    if (!resume) {
+      return res.status(400).json({
+        message: "No resume uploaded",
         success: false,
       });
     }
@@ -380,10 +329,13 @@ export const resumeReview = async (req, res) => {
         success: false,
       });
     }
-    const dataBuffer = fs.readFileSync(resume.path);
-    const pdfData = await PDFParse(dataBuffer);
 
-    const prompt = `Review the following resume and provide constructive feedback on its strengths, weaknesses, and areas for improvement. Resume Content:\n\n${pdfData.text}`;
+    const parser = new PDFParse({ data: resume.buffer });
+
+    const pdfResult = await parser.getText();
+
+    const prompt = `Review the following resume and provide constructive feedback on its strengths, weaknesses, and areas for improvement. Resume Content:\n\n${pdfResult.text}`;
+
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: [
@@ -397,20 +349,14 @@ export const resumeReview = async (req, res) => {
         maxOutputTokens: 1000,
       },
     });
-    const content = response.text;
 
-    if (!content) {
-      return res.status(500).json({
-        message: "AI did not return any content",
-        success: false,
-      });
-    }
+    const content = response.text;
 
     await prisma.creations.create({
       data: {
         userId,
         prompt: "Review the uploaded resume",
-        content: content,
+        content,
         type: "resume-review",
       },
     });
@@ -420,11 +366,15 @@ export const resumeReview = async (req, res) => {
       success: true,
     });
   } catch (error) {
-    console.error("Generate Article Error:", error.message);
-
+    console.error("Resume Review Error:", error);
     return res.status(400).json({
       message: error.message || "Something went wrong",
       success: false,
     });
   }
 };
+
+
+
+
+
